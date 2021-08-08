@@ -136,6 +136,51 @@ ssh-keygen -t rsa -C "604995331@qq.com"
 
 ### 添加远程仓库
 
+先有本地库再有远程库的情况下关联远程库。
+
+1.   在github中创建一个仓库：learning
+2.   在本地将这个仓库和github上的仓库创建关联
+
+```
+git remote add origin git@github.com:baixz/learning.git
+# origin是远程仓库的名字，则是git的默认叫法，也可以修改成别的
+```
+
+3.   将本地库的所有内容推送到远程库上
+
+```
+git push -u origin master
+# 本地库推送到远程库，使用git push命令，实际上是把当前分支master推送到远程
+# 由于远程库是空的，我们第一次推送master分支时，加上-u参数，git不但会把本地的分支内容推送到远程新的master分支，还会把本地的master分支和远程的master分支关联起来，以后的推送或者拉取就可以简化命令。
+# 再次向远程库推送master分支时，可以使用下面的命令
+git push origin master
+```
+
+4.   删除远程库
+
+```
+# 查看远程库信息
+git remote -v
+# 根据远程库的名称，删除远程库
+git remote rm origin
+```
+
+### 从远程库克隆
+
+先创建远程库再将远程库克隆到本地
+
+1.   将已有内容的远程库克隆至本地
+
+```
+git clone git@github.com:baixz/learning.git
+```
+
+## 分支管理
+
+
+
+
+
 
 
 
