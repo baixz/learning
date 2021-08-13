@@ -14,6 +14,15 @@ git是最先进的分布式版本控制系统
      git config --global user.name "username"
      git config --global user.email "email@example.com"
      ```
+     
+3.   解决git status命令下，中文显示不正常的问题
+
+     ```
+     # 在git bash下执行
+     git config --global core.quotepath false
+     ```
+
+     
 
 ### 创建版本库
 
