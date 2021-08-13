@@ -173,21 +173,31 @@
 
 ### &
 
+* 使用&命令可以把命令放到后台执行
 
+* 格式：
 
-
+  ```
+  命令 &
+  ```
 
 ### nohup
 
+* nohup命令可以在用户退出账户之后继续运行相应的进程。
 
+* 使用nohup命令提交点单个命令
 
+  ```
+  nohup command > myout.file 2>&1
+  ```
 
+* 使用nohup命令处理多个命令
 
-
-
-
-
-
+  ```
+  # 1.编写shell文件
+  # 2.使用nohup命令执行shell文件
+  nohup ./nohuptest.sh > notest.out 2>&1 &
+  ```
 
 ## 文件名置换
 
