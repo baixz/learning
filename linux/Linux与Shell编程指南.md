@@ -201,9 +201,185 @@
 
 ## 文件名置换
 
+### 使用*
 
+* 使用星号*可以匹配文件名中的任意字符串。
+
+  ```bash
+  $ ls app*	# 查询以app开头的字符串
+  $ ls *.doc	# 查询.doc结尾的文件
+  $ ls cl*.sed # 查询以cl开头，以.sed结尾的文件
+  ```
+
+### 使用？
+
+* 使用问号可以匹配文件名中的任意单个字符。
+
+  ```bash
+  $ ls ??R*	# 查询以任意两个字符开头第三个字符是R，后面接任意字符的文件
+  $ ls conf??.log	# 查询以conf开头，中间是任意两个字符，最后以.log结尾的文件
+  $ ls f??*s # 查询以f开头，中间是任意两个字符，后面跟任意字符串，并以s结尾的文件
+  ```
+
+### 使用[...]和[!...]
+
+* 使用[...]可以用来匹配方括号中的任意一个字符。可以使用横杠-来链接两个字母或数字表示一个范围。
+
+  ```bash
+  $ ls [io]*	# 查询以i或o开头的文件名
+  $ ls log.[0-9]*	# 查询所有以log.开头，后面跟随一个数字，然后可以是任何字符的文件名
+  $ ls LSP??[!0-9]* # 查询以LSP开头、中间可以是任意两个字符，后面跟随一个非数字字符、然后是任意字符串的文件名。
+  ```
 
 ## shell输入与输出
+
+### echo
+
+* 语法格式
+
+  * echo [选项] [文本]
+
+* 选项
+
+  * -n：不要自动换行
+  * -E：不解析转义字符（默认参数）
+  * -e：若字符串中出现一下字符，需要进行特别处理，不能将它当做一般文字输出
+    * \c：最后不加换行符
+    * \f：换行但是光标依旧停留在原来的位置
+    * \t：插入tab
+    * \n：换行且光标移动至行首
+    * \nnn：插入nnn（八进制）所代表的的ASCII字符。
+
+* 使用范例
+
+  ```bash
+  $ echo hello world!		# 打印字符串
+  $ echo 'hello world'	# 打印字符串
+  $ echo "hello world\!"	# 感叹号需要转义
+  $ echo -e 'hello\tworld'	# \t需要做特殊处理
+  $ echo 'hello world' >> hello.txt	# 将内容写入文件
+  $ echo -n "oldboy";echo "oldboy"	# 第一个输出不换行
+  $ echo $PATH	# 打印变量
+  ```
+
+### read
+
+* 语法格式
+
+  * read varible1 varible2 ...
+
+* 使用范例：
+
+  ```bash
+  $ read name		# 如果只指定一个变量，则会将所有输入赋值给该变量知道遇到文件结束符或回车
+  baixz 123
+  $ echo ${name}
+  baixz 123
+  $ read name1 name2	# 如果指定两个变量，但是输入的字符串数量大于2个，从第二个开始的字符串都会赋值给第二个变量。
+  baixz 123 456 789
+  $ echo ${name2}
+  123 456 789
+  [baixz@baixz ~]$ cat var_test.sh # 读取三个字符串
+  #!/bin/sh
+  # var_test
+  echo -e "first name: \c"
+  read firstname
+  echo -e "middle name: \c"
+  read middle
+  echo -e "lastname: \c"
+  read surname
+  echo -e ${firstname}" "${middle}" "${surname}
+  ```
+
+### cat
+
+* 语法格式
+
+  * cat [选项] [文件]
+
+* 选项说明：
+
+  * -n：从1开始对所有输出内容按行编号
+  * -b：和-n选项功能类似，但是会忽略显示空白行行号
+  * -s：当遇到有连续两行以上的空白行时，就替换为一行空白行
+  * -A：等价于-vET三个选项之和
+  * -e：等价于-vE
+  * -E：在每一行的行尾显示$符号
+  * -t：与-vT等价
+  * -T：将Tab字符显示为^I
+  * -v：除了LFD和TAB之外，使用^和M-引用
+
+* 使用范例：
+
+  ```bash
+  # 创建新文件
+  $ cat > test.txt <<EOF
+  > 这是第一行内容
+  > 
+  > 空了一行
+  > 
+  > 
+  > 又空了两行
+  > EOF
+  $ cat test1.txt test2.txt	# 一次显示多个文件
+  $ cat test1.txt test2.txt > testnew.txt	# 将前两个文件的内容写入到新文件里
+  $ cat -E test.txt	# 显示每一行结尾的结束符
+  ```
+  
+
+### 管道 |
+
+* 通过管道可以把一个命令的输出传递给另一个命令作为输入。
+
+* 语法：
+
+  * 命令1 | 命令2
+
+* 示例：
+
+  ```bash
+  $ ls | grep test.txt	# 在ls的结果中查找test.txt
+  $ who | awk '{print $1"\t"$2}'
+  ```
+
+### tee
+
+* tee命令可以把输出的一个副本输送到标准输出，另一个副本拷贝到响应的文件中。
+
+* 语法：
+
+  * tee [-a] files	# -a表示追加到文件末尾
+
+* 示例：
+
+  ```bash
+  $ who | tee who.out	# who命令将结果输入到屏幕上，同时使用tee命令将输出保存到who.out文件中。
+  ```
+
+### 标准输入、输出和错误
+
+* 标准输入：标准输入是文件描述符0。它是命令的输入，缺省为键盘，也可以是文件或其他命令的输出。
+* 标准输出：标准输出是文件描述符1。它是命令的输出，缺省是屏幕，也可以是文件。
+* 标准错误：标准错误是文件描述符2。它是命令错误的输出，缺省是屏幕，也可以是文件。
+
+### 文件重定向
+
+* 常用文件重定向命令
+
+| 命令                            | 说明 |
+| :------------------------------ | ---- |
+| command > filename              |      |
+| command >> filename             |      |
+| command 1 > filename            |      |
+| command > filename 2>&1         |      |
+| command 2 > filename            |      |
+| command 2 >> filename           |      |
+| command >> filename 2>&1        |      |
+| command < filename1 > filename2 |      |
+| command < filename              |      |
+| command << delimiter            |      |
+| command <                       |      |
+|                                 |      |
 
 
 
