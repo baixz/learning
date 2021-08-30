@@ -182,7 +182,7 @@
 
   1. 导入jar包
   2. 创建JdbcTemplate对象。依赖于数据源DataSource
-     * JdbcTemplate template = new JdbcTemplate(ds);
+     * JdbcTemplate template = new JdbcTemplate(JDBCUtils.getDataSource());
   3. 调用JdbcTemplate的方法来完成CRUD的操作
      * update():执行DML语句。增、删、改语句
      * queryForMap():查询结果将结果集封装为map集合，将列名作为key，将值作为value 将这条记录封装为一个map集合

@@ -145,20 +145,21 @@
   				2. 请求的url长度没有限制的
   				3. 相对安全
   2. 请求头：客户端浏览器告诉服务器一些信息
-    请求头名称: 请求头值
+      请求头名称: 请求头值
     * 常见的请求头：
       1. User-Agent：浏览器告诉服务器，我访问你使用的浏览器版本信息
         * 可以在服务器端获取该头的信息，解决浏览器的兼容性问题
       2. Referer：http://localhost/login.html
         * 告诉服务器，我(当前请求)从哪里来？
         	* 作用：
+      
         		1. 防盗链：
         		2. 统计工作：
   3. 请求空行
   	空行，就是用于分割POST请求的请求头，和请求体的。
   4. 请求体(正文)：
   	* 封装POST请求消息的请求参数的
-
+  
   * 字符串格式：
   	
   	```
@@ -312,6 +313,7 @@
   3. 使用JdbcTemplate技术封装JDBC
   4. 登录成功跳转到SuccessServlet展示：登录成功！用户名,欢迎您
   5. 登录失败跳转到FailServlet展示：登录失败，用户名或密码错误
+  
 * 开发步骤：
   1. 创建javaee项目，导入jar包，创建html登录页面
   2. 数据库中创建表
@@ -321,3 +323,67 @@
   6. 编写cn.itcast.web.servlet.LoginServlet类
   7. 编写FailServlet和SuccessServlet类
   8. 编写login.html页面
+  
+* 代码：
+
+  ```java
+  //User类
+  
+  //JDBCUtils
+  
+  //UserDao
+  public class UserDao {
+  
+      JdbcTemplate template = new JdbcTemplate(JDBCUtils.getDataSource());
+  
+      public User login(User loginUser) {
+          try {
+              String sql = "select * from user where username = ? and password = ?";
+              //将查询结果封装成User类对象，且queryForObject方法只有一个返回值
+              User user = template.queryForObject(sql, new BeanPropertyRowMapper<User>(User.class),
+                      loginUser.getUsername(), loginUser.getPassword());
+              return user;
+          } catch (DataAccessException e) {
+              e.printStackTrace();
+              return null;
+          }
+      }
+  }
+  
+  //LoginServlet
+  @WebServlet("/loginServlet")
+  public class LoginServlet extends HttpServlet {
+      protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+          //设置request编码
+          request.setCharacterEncoding("utf-8");
+  		//获取所有表单提交的信息
+          Map<String, String[]> map = request.getParameterMap();
+          User loginUser = new User();
+          try {
+              //将表单提交信息分装成user类。
+              BeanUtils.populate(loginUser, map);
+          } catch (IllegalAccessException e) {
+              e.printStackTrace();
+          } catch (InvocationTargetException e) {
+              e.printStackTrace();
+          }
+  		//调用UserDao方法查询数据库
+          UserDao dao = new UserDao();
+          User user = dao.login(loginUser);
+  
+          if (user == null) {
+              //System.out.println("登陆失败");
+              request.getRequestDispatcher("faile.jsp").forward(request, response);
+          } else {
+              //System.out.println("登陆成功");
+              request.setAttribute("user", user);
+              request.getRequestDispatcher("/success.jsp").forward(request, response);
+          }
+      }
+      protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+          this.doPost(request, response);
+      }
+  }
+  ```
+
+  
