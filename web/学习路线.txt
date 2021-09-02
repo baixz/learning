@@ -1,0 +1,17 @@
+第一阶段
+1-html+css
+2-js基础
+3-js高级
+4-jquery
+5-css3
+6-less
+7-bootstrap
+8-html5基础
+9-html5实战
+
+------
+目前需要的
+html，css
+js
+jquery
+bootstrap
