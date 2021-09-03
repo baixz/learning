@@ -12,6 +12,5 @@
 ------
 目前需要的
 html，css
-js
 jquery
 bootstrap
