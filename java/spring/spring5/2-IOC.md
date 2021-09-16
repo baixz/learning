@@ -56,7 +56,7 @@ IOC通过xml解析、工厂模式、反射实现现有功能
 
 
 
-## IOC操作——Bean管理（基于xml）
+## IOC操作——Bean管理（基于xml文件创建bean）
 
 ### 基于xml方式创建对象
 
@@ -496,6 +496,196 @@ DI：依赖注入，就是注入属性。
            <property name="list" ref="bookList"></property>
        </bean>
    ```
+   
+   
+
+## IOC操作——Bean管理（FactoryBean）
+
+spring中有两种类型的bean，一种普通bean，另一种工厂bean（FactoryBean）
+
+1. 普通bean：在配置文件中定义bean类型就是返回类型
+2. 工厂bean：在配置文件中定义bean类型可以返回不同的类型。
+
+工厂bean创建步骤：
+
+1. 创建类，让这个类作为工厂bean，实现接口FactoryBean
+2. 实现接口中的方法，在实现方法找那个定义返回的bean类型。
+
+示例：
+
+```java
+//创建工厂bean
+public class MyBean implements FactoryBean<Course> {
+
+    //定义返回bean对象
+    @Override
+    public Course getObject() throws Exception {
+        Course course = new Course();
+        return course;
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return null;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return false;
+    }
+}
+```
+
+```xml
+	<!--xml配置-->
+    <bean id="myBean" class="com.atguigu.spring.facbean.MyBean">
+    </bean>
+```
+
+```java
+    @Test
+    public void test() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("bean3.xml");
+        Course course = context.getBean("myBean", Course.class);
+        System.out.println(course);
+    }
+```
+
+
+
+## IOC操作——Bean管理（bean作用域）
+
+1. 在Spring里可以设置bean实例是单实例或多实例
+2. 在Spring里，默认情况下，bean是单实例对象（默认情况下一个类只会创建一个对象）
+3. 如何设置单实例还是多实例
+   1. 在Spring配置文件的bean标签中，使用**scope**属性来设置实例是但实例还是多实例
+   2. scope属性的属性值
+      1. singleton，默认值，表示是单实例对象
+      2. prototype，表示是多实例对象
+   3. singleton和prototype的区别：
+      1. singleton表示单实例，prototype表示多实例
+      2. 设置scope值是singleton的时候，加载spring配置文件时就会创建单实例对象
+      3. 设置scope值是prototype的时候，不是在加载spring配置文件时创建多实例对象，在调用getBean()方法的时候才会创建多实例对象。
+
+
+
+## IOC操作——Bean管理（bean生命周期）
+
+1. bean的生命周期
+   1. 通过构造器创建bean实例（调用类的无参构造器）
+   2. 为bean的属性设置值和对其他bean的使用（调用set方法）
+   3. 调用bean的初始化方法（需要配置初始化的方法）
+   4. 使用bean（对象获取到了）
+   5. 当容器关闭的时候，会调用bean的销毁方法（需要配置销毁的方法）
+
+2. 示例：
+
+   ```java
+   public class Orders {
+   
+       private String oname;
+   
+       //无参构造器
+       public Orders() {
+           System.out.println("第一步：构造器");
+       }
+   
+       public void setOname(String oname) {
+           System.out.println("第二步：调用set方法设置属性值");
+           this.oname = oname;
+       }
+   
+       //初始化方法
+       public void initMethod() {
+           System.out.println("第三步：执行初始化方法");
+       }
+   
+       //销毁方法
+       public void destroyMethod() {
+           System.out.println("第五步：执行销毁方法");
+       }
+   }
+   ```
+
+   ```xml
+       <bean id="orders" class="com.atguigu.spring.bean.Orders" init-method="initMethod" destroy-method="destroyMethod">
+           <property name="oname" value="手机"></property>
+       </bean>
+   ```
+
+   ```java
+       @Test
+       public void test4() {
+           ApplicationContext context = new ClassPathXmlApplicationContext("bean4.xml");
+           Orders orders = context.getBean("orders", Orders.class);
+           System.out.println("第四步：获取bean实例对象");
+           System.out.println(orders);
+   
+           //手动销毁bean实例
+           ((ClassPathXmlApplicationContext) context).close();
+       }
+   ```
+
+3. bean的后置处理器，bean的生命周期为7步。
+
+   1. 通过构造器创建bean实例（调用类的无参构造器）
+   2. 为bean的属性设置值和对其他bean的使用（调用set方法）
+   3. 把bean实例传递给bean后置处理器的方法：postProcessBeforeInitialization
+   4. 调用bean的初始化方法（需要配置初始化的方法）
+   5. 把bean实例传递给bean后置处理器的方法：postProcessAfterInitialization
+   6. 使用bean（对象获取到了）
+   7. 当容器关闭的时候，会调用bean的销毁方法（需要配置销毁的方法）
+
+4. 演示添加后置处理器效果
+
+   1. 创建类，实现接口BeanPostProcessor，创建后置处理器
+
+      ```java
+      public class MyBeanPost implements BeanPostProcessor {
+          @Override
+          public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+              System.out.println("在初始化之前执行的方法");
+              return bean;
+          }
+      
+          @Override
+          public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+              System.out.println("在初始化之后执行的方法");
+              return bean;
+          }
+      }
+      ```
+
+   2. 在配置文件中添加配置
+
+      ```xml
+          <!--配置后置处理器-->
+          <bean id="myBeanPost" class="com.atguigu.spring.bean.MyBeanPost"></bean>
+      ```
+
+   3. 配置了后置处理器的配置文件中，会对当前文件中的其他所有bean实例对象产生影响，即所有其他bean实例对象都会添加后置处理器。
+
+
+
+## IOC操作——Bean管理（xml自动装配）
+
+1. 自动装配的含义
+
+   根据指定装配规则（属性名称或属性类型），Spring自动将匹配的属性值进行注入，简化xml文件。
+
+2. 演示自动装配过程
+
+   
+
+
+
+
+
+
+
+
+
+
 
 
 
