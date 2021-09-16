@@ -346,13 +346,220 @@ DI：依赖注入，就是注入属性。
 
 1. 第一种写法
 
+   ```xml
+       <!--级联赋值-->
+       <bean id="emp" class="com.atguigu.spring.Emp">
+           <!--设置两个普通属性-->
+           <property name="ename" value="lucy"></property>
+           <property name="egender" value="female"></property>
+           <property name="dept" ref="dept"></property>
+       </bean>
+       <bean id="dept" class="com.atguigu.spring.Dept">
+           <property name="dname" value="财务部"></property>
+       </bean>
+   ```
+
+2. 第二种写法
+
+   ```xml
+   	<!--级联赋值-->
+       <bean id="emp" class="com.atguigu.spring.Emp">
+           <!--设置两个普通属性-->
+           <property name="ename" value="lucy"></property>
+           <property name="egender" value="female"></property>
+           <property name="dept" ref="dept"></property>
+           <!--需要在Emp类中实现Dept的get方法-->
+           <property name="dept.dname" value="技术部"></property>
+       </bean>
+       <bean id="dept" class="com.atguigu.spring.Dept">
+           <property name="dname" value="财务部"></property>
+       </bean>
+   ```
+
+   
+
+### 注入数组、集合类型的属性
+
+1. 创建类，定义数组、list、set、map类型的属性，并生成set方法
+
+   ```java
+   public class Student {
+       //数组类型
+       private String[] courses;
+       //list集合类型
+       private List<String> list;
+       //set集合类型
+       private Set<String> sets;
+       //map集合类型
+       private Map<String, String> map;
+   
+       public void setCourses(String[] courses) {
+           this.courses = courses;
+       }
+       public void setList(List<String> list) {
+           this.list = list;
+       }
+       public void setSets(Set<String> sets) {
+           this.sets = sets;
+       }
+       public void setMap(Map<String, String> map) {
+           this.map = map;
+       }
+   }
+   ```
+
+2. 在spring配置文件中添加注入配置
+
+   ```xml
+       <bean id="student" class="com.atguigu.spring5.collection.Student">
+           <!--数组类型注入-->
+           <property name="courses">
+               <array>
+                   <value>java课程</value>
+                   <value>数据库</value>
+               </array>
+           </property>
+           <!--list类型注入-->
+           <property name="list">
+               <list>
+                   <value>张三</value>
+                   <value>小三</value>
+               </list>
+           </property>
+           <property name="sets">
+               <set>
+                   <value>mysql</value>
+                   <value>redis</value>
+               </set>
+           </property>
+           <!--map类型注入-->
+           <property name="map">
+               <map>
+                   <entry key="JAVA" value="java"></entry>
+                   <entry key="PHP" value="php"></entry>
+               </map>
+           </property>
+       </bean>
+   ```
+
+   
+
+### 在集合中设置对象类型的值
+
+```xml
+    <bean id="student" class="com.atguigu.spring5.collection.Student">
+        <!--注入list集合类型，值是对象-->
+        <property name="courseList">
+            <list>
+                <ref bean="course1"></ref>
+                <ref bean="course2"></ref>
+            </list>
+        </property>
+    </bean>
+	<!--创建多个course对象-->
+    <bean id="course1" class="com.atguigu.spring5.collection.Course">
+        <property name="name" value="语文"></property>
+    </bean>
+    <bean id="course2" class="com.atguigu.spring5.collection.Course">
+        <property name="name" value="数学"></property>
+    </bean>
+```
+
+
+
+### 把集合中注入的部分提取出来作为公共部分
+
+1. 在spring配置文件中添加命名空间：util
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:util = "http://www.springframework.org/schema/util"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                              http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd">
+   
+   </beans>
+   ```
+
+2. 使用util标签完成list集合注入提取
+
+   ```xml
+       <!--1. 提取list集合类型属性注入-->
+       <util:list id="bookList">
+           <value>易筋经</value>
+           <value>九阴</value>
+           <value>九阳</value>
+       </util:list>
+       <!--2. 提取list集合类型属性使用-->
+       <bean id="book" class="com.atguigu.spring5.collection.Book">
+           <property name="list" ref="bookList"></property>
+       </bean>
+   ```
 
 
 
 
 
 
-### 集合
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
