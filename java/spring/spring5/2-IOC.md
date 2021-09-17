@@ -675,15 +675,87 @@ public class MyBean implements FactoryBean<Course> {
 
 2. 演示自动装配过程
 
+   ```xml
+       <!--实现自动装配
+           bean标签属性autowire，配置自动装配
+           autowire常用属性值：
+           byName：根据属性名称注入，注入值bean的id要与类属性名称一致
+           byType：根据属性类型注入，当有多个相同属性类型的bean时，会报错。
+       -->
+   	<!--根据属性值自动装配-->
+       <bean id="emp" class="com.atguigu.spring5.autowire.Emp" autowire="byName">
+           <!--<property name="dept" ref="dept"></property>-->
+       </bean>
+       <bean id="dept" class="com.atguigu.spring5.autowire.Dept"></bean>
+   
+   	<!--根据属性名称自动装配-->
+       <bean id="emp" class="com.atguigu.spring5.autowire.Emp" autowire="byType">
+           <!--<property name="dept" ref="dept"></property>-->
+       </bean>
+       <bean id="dept" class="com.atguigu.spring5.autowire.Dept"></bean>
+   ```
+   
    
 
+## IOC操作——Bean管理（外部属性文件）
+
+1. 直接配置druid连接池
+
+   1. 导入jar包
+
+   2. 编写xml文件
+
+      ```xml
+          <!-- 直接配置数据库连接池 -->
+          <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+                destroy-method="close">
+              <property name="url" value="jdbc:mysql:///user_db" />
+              <property name="username" value="root" />
+              <property name="password" value="root" />
+              <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+          </bean>
+      ```
+
+2. 引入外部属性文件配置
+
+   1. 创建外部属性文件
+
+      ```properties
+      prop.driverClass=com.mysql.jdbc.Driver
+      prop.url=jdbc:mysql:///day18
+      prop.username=root
+      prop.password=root
+      ```
+
+   2. 把properties配置文件引入到spring配置文件中
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <beans xmlns="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+      	<!--1.引入context标签-->
+          
+          <!--2.引入外部属性文件-->
+          <context:property-placeholder location="classpath:jdbc.properties" />
+      
+          <!--3.配置连接池-->
+          <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+                destroy-method="close">
+              <property name="url" value="${prop.url}" />
+              <property name="username" value="${prop.username}" />
+              <property name="password" value="${prop.password}" />
+              <property name="driverClassName" value="${prop.driverClass}" />
+          </bean>
+      
+      </beans>
+      ```
 
 
 
-
-
-
-
+## IOC操作——Bean管理（基于注解方式）
 
 
 
