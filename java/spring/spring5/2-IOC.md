@@ -757,76 +757,181 @@ public class MyBean implements FactoryBean<Course> {
 
 ## IOC操作——Bean管理（基于注解方式）
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### Spring针对Bean管理中创建对象提供的注解
+
+1. @Component
+2. @Service
+3. @Controller
+4. @Repository
+
+- 上面四个注解实现的功能都是一样的，都可以用来创建bean实例
+
+
+
+### 基于注解方式创建对象
+
+1. 操作步骤：
+   1. 导入依赖的jar包：spring-aop-5.2.6.jar
+   2. 在配置文件中引入context命名空间，再开启组件扫描
+   3. 创建类，并在类上面添加创建对象的注解
+
+2. 代码示例：
+
+   ```xml
+       <!--开启组件扫描-->
+       <!--
+           同时扫描多个包
+           1.base-package中设置多个值，用逗号隔开
+           2.base-package设置这些包的上层目录
+       -->
+       <context:component-scan base-package="com.atguigu.spring" ></context:component-scan>
+   ```
+
+   ```java
+   //注解中的value为默认值，
+   //value属性可以不设置，默认会使用当前类的类名作为value的属性值，且首字母小写。
+   @Component(value = "userService")
+   public class UserService {
+       public void add() {
+           System.out.println("add.......");
+       }
+   }
+   ```
+
+3. 组件扫描中的细节说明
+
+   1. 扫描配置时，默认会扫描com.atguigu.spring包下所有文件
+   2. 如果希望扫描包下的某些文件，可以添加**use-default-filters="false"**配置，这样的话，只会扫描符合规则的文件
+
+   ```xml
+       <!--use-default-filters="false"后，只会扫描包下符合规则的文件-->
+       <context:component-scan base-package="com.atguigu.spring" use-default-filters="false">
+           <!--配置扫描规则-->
+           <!--这个规则表示只扫描加了@Controller注解的的类-->
+           <context:include-filter type="annotation"
+                                   expression="org.springframework.stereotype.Controller"/>
+       </context:component-scan>
+   
+       <!--扫描所有文件-->
+       <context:component-scan base-package="com.atguigu.spring">
+           <!--这个规则表示排除加了@Controller注解的类-->
+           <context:exclude-filter type="annotation"
+                                   expression="org.springframework.stereotype.Controller"/>
+       </context:component-scan>
+   ```
+
+
+
+### 基于注解方式注入属性
+
+1. 用于注入属性的注解
+
+   1. @Autowire：根据属性类型自动装配
+   2. @Qualifier：根据属性名称进行注入
+      - 这个注解需要和@Autowire一起使用
+      - 当某一个接口有多个实现类时，可以使用这个注解定位
+   3. @Resource：可以根据类型类型注入，可以根据名称注入
+   4. @Value：注入普通类型属性
+
+2. @Autowire注入演示
+
+   ```java
+   //UserDao接口的实现类
+   @Repository
+   public class UserDaoImpl implements UserDao {
+       @Override
+       public void add() {
+           System.out.println("userDao......");
+       }
+   }
+   
+   @Service
+   public class UserService {
+   
+       //添加userDao属性
+       //不需要添加set方法
+       //添加属性注解
+       @Autowired
+       private UserDao userDao;
+   
+       public void add() {
+           System.out.println("add.......");
+           userDao.add();
+       }
+   }
+   ```
+
+3. @Qualifier注入演示
+
+   ```java
+   //UserDao接口的实现类之一
+   @Repository(value = "userDaoImpl1")
+   public class UserDaoImpl implements UserDao {
+       @Override
+       public void add() {
+           System.out.println("userDao......");
+       }
+   }
+   
+   @Service
+   public class UserService {
+   
+       //添加userDao属性
+       //不需要添加set方法
+       //添加属性注解
+       @Autowired
+       @Qualifier(value = "userDaoImpl1")
+       private UserDao userDao;
+   
+       public void add() {
+           System.out.println("add.......");
+           userDao.add();
+       }
+   }
+   ```
+
+4. @Resource注解演示：
+
+   ```java
+       //@Resource   //根据类型注入
+       @Resource(name = "userDaoImpl1")    //根据名称注入
+       private UserDao userDao;
+   ```
+
+5. @Value注解的使用
+
+   ```java
+       //注入普通类型属性
+       @Value(value = "abc")
+       private String str;
+   ```
+
+   
+
+### 完全注解开发
+
+1. 创建配置类，代替xml配置文件
+
+   ```java
+   //创建配置类，代替配置文件
+   @Configuration
+   @ComponentScan(basePackages = {"com.atguigu.spring"})
+   public class SpringConfig {
+   }
+   ```
+
+2. 编写测试类
+
+   ```java
+       @Test
+       public void test2() {
+           //加载配置类
+           ApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
+           UserService userService = context.getBean("userService", UserService.class);
+           System.out.println(userService);
+           userService.add();
+       }
+   ```
 
 
 
