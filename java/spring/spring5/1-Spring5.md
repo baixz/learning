@@ -27,7 +27,13 @@
 
 1. 创建javabean工程
 
-2. 导入spring的jar包
+2. 导入spring ioc的jar包
+
+   - commons-logging-1.1.1.jar
+   - spring-beans-5.2.6.RELEASE.jar
+   - spring-context-5.2.6.RELEASE.jar
+   - spring-core-5.2.6.RELEASE.jar
+   - spring-expression-5.2.6.RELEASE.jar
 
 3. 创建普通类，在这个类创建普通方法
 
