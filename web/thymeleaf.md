@@ -24,6 +24,15 @@
 <a th:href="@{/target}">访问目标页面target.html</a>
 ```
 
+### 获取request域对象数据
+
+```html
+<!--th:test，将文本信息显示在p标签中-->
+<!--${}中的变量值是request域对象-->
+<p th:text="${testRequestScope}"></p>
+<p th:text="${session.testSScope}"></p>
+```
+
 
 
 
